@@ -1,6 +1,6 @@
 {
   "name": "attentive",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A modern, lightweight pjax library",
   "files": [
     "dist"
@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/selfawarestudio/martha.git"
+    "url": "git+https://github.com/selfawarestudio/attentive.git"
   },
   "keywords": [
     "pjax",
@@ -38,9 +38,9 @@
   "author": "Mike Wagz",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/selfawarestudio/martha/issues"
+    "url": "https://github.com/selfawarestudio/attentive/issues"
   },
-  "homepage": "https://github.com/selfawarestudio/martha#readme",
+  "homepage": "https://github.com/selfawarestudio/attentive#readme",
   "devDependencies": {
     "@commitlint/cli": "^16.0.1",
     "@commitlint/config-conventional": "^16.0.0",
