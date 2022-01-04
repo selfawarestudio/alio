@@ -1,18 +1,18 @@
 {
-  "name": "attentive",
+  "name": "alio",
   "version": "0.0.2",
-  "description": "A modern, lightweight pjax library",
+  "description": "A lightweight pjax library",
   "files": [
     "dist"
   ],
-  "main": "dist/attentive.umd.js",
-  "unpkg": "dist/attentive.iife.js",
-  "jsdelivr": "dist/attentive.iife.js",
-  "module": "./dist/attentive.es.js",
+  "main": "dist/alio.umd.js",
+  "unpkg": "dist/alio.iife.js",
+  "jsdelivr": "dist/alio.iife.js",
+  "module": "./dist/alio.es.js",
   "exports": {
     ".": {
-      "import": "./dist/attentive.es.js",
-      "require": "./dist/attentive.umd.js"
+      "import": "./dist/alio.es.js",
+      "require": "./dist/alio.umd.js"
     }
   },
   "types": "./dist/types/index.d.ts",
@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/selfawarestudio/attentive.git"
+    "url": "git+https://github.com/selfawarestudio/alio.git"
   },
   "keywords": [
     "pjax",
@@ -38,9 +38,9 @@
   "author": "Mike Wagz",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/selfawarestudio/attentive/issues"
+    "url": "https://github.com/selfawarestudio/alio/issues"
   },
-  "homepage": "https://github.com/selfawarestudio/attentive#readme",
+  "homepage": "https://github.com/selfawarestudio/alio#readme",
   "devDependencies": {
     "@commitlint/cli": "^16.0.1",
     "@commitlint/config-conventional": "^16.0.0",
