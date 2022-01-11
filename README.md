@@ -1,6 +1,6 @@
 # alio
 
-:spa A lightweight pjax library with a focus on animated page transitions.
+A lightweight pjax library with a focus on animated page transitions.
 
 ## Features
 - 🦠 Tiny & minimal (1.3kb gizipped)
