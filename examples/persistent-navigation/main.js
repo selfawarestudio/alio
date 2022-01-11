@@ -1,68 +1,54 @@
 import { create } from '../../lib'
 import { animate } from 'motion'
 
-let attentive = create({
+let alio = create({
   transitions: {
     default: {
-      enter({ from, to }) {
-        window.scrollTo(0, 0)
-        from && from.remove()
-        return animate(to, { opacity: 1 }, { duration: 1 }).finished
+      async enter({ from, to }) {
+        window.scroll(0, 0)
+        from?.remove()
+        await animate(to, { opacity: [0, 1] }).finished
       },
-      leave({ from }) {
-        return animate(from, { opacity: 0 }, { duration: 1 }).finished
-      },
-    },
-    test: {
-      enter({ from, to, leaveCancelled }) {
-        window.scrollTo(0, 0)
-        from && from.remove()
-        return animate(
-          to,
-          { opacity: 1, x: leaveCancelled ? 0 : [-10, 0] },
-          { duration: 1 },
-        ).finished
-      },
-      leave({ from }) {
-        return animate(from, { opacity: 0, x: 10 }, { duration: 1 }).finished
+      async leave({ from }) {
+        await animate(from, { opacity: 0 }).finished
       },
     },
   },
 })
 
-attentive.on('beforeLeave', () => {
+alio.on('beforeLeave', () => {
   console.log('beforeLeave')
 })
 
-attentive.on('afterLeave', () => {
+alio.on('afterLeave', () => {
   console.log('afterLeave')
 })
 
-attentive.on('beforeEnter', () => {
+alio.on('beforeEnter', () => {
   console.log('beforeEnter')
 })
 
-attentive.on('afterEnter', () => {
+alio.on('afterEnter', () => {
   console.log('afterEnter')
   console.log('---')
 })
 
-attentive.on('leaveCancelled', ({ from }) => {
+alio.on('leaveCancelled', ({ from }) => {
   animate(from, { x: 0 }, { duration: 1 })
   console.log('---')
   console.log('%cleaveCancelled', 'font-weight:700;color:blue;')
 })
 
-attentive.on('enterCancelled', () => {
+alio.on('enterCancelled', () => {
   console.log('---')
   console.log('%centerCancelled', 'font-weight:700;color:blue;')
 })
 
-attentive.on('error', (error) => {
+alio.on('error', (error) => {
   console.log('%cerror', 'font-weight:700;color:red;', error)
 })
 
-attentive.on('samePage', () => {
+alio.on('samePage', () => {
   console.log('samePage')
   console.log('---')
 })
