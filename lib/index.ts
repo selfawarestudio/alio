@@ -198,7 +198,7 @@ export function create({ transitions }: AlioOptions): AlioApi {
     // @ts-ignore
     root.append(to)
 
-    emitter.emit('beforeEnter', { href, from, to })
+    emitter.emit('beforeEnter', { href, from, to, doc })
 
     await enter({ from, to })
 
@@ -207,7 +207,7 @@ export function create({ transitions }: AlioOptions): AlioApi {
       return
     }
 
-    emitter.emit('afterEnter', { href, from, to })
+    emitter.emit('afterEnter', { href, from, to, doc })
 
     status = IDLE
     lastHref = href
