@@ -14,6 +14,7 @@ specifiers:
   is-ci: ^3.0.1
   jsdom: ^19.0.0
   martha: ^4.0.3
+  motion: ^10.7.0
   prettier: ^2.5.1
   semantic-release: ^18.0.1
   sinon: ^12.0.1
@@ -40,6 +41,7 @@ devDependencies:
   husky: 7.0.4
   is-ci: 3.0.1
   jsdom: 19.0.0
+  motion: 10.7.0
   prettier: 2.5.1
   semantic-release: 18.0.1
   sinon: 12.0.1
@@ -250,6 +252,83 @@ packages:
   /@istanbuljs/schema/0.1.3:
     resolution: {integrity: sha512-ZXRY4jNvVgSVQ8DL3LTcakaAtXwTVUxE81hslsyD2AtoXW/wVob10HkOJ1X/pAlcI7D+2YoZKg5do8G/w6RYgA==}
     engines: {node: '>=8'}
+    dev: true
+
+  /@motionone/animation/10.7.0:
+    resolution: {integrity: sha512-TMsa4i5J6Lhl0CzEJM0umzW/ChTY5tIQ0Xcwi/nqw4OAOnpCoKWb4SDqT8Afx7WZ9+rw1/lZyRbB7ND52ibFPg==}
+    dependencies:
+      '@motionone/easing': 10.7.0
+      '@motionone/types': 10.7.0
+      '@motionone/utils': 10.7.0
+      tslib: 2.3.1
+    dev: true
+
+  /@motionone/dom/10.7.0:
+    resolution: {integrity: sha512-aPXbpFJJtqeJWXolFDG77YZ+FTnQqQzdkaNvzPAi3H3sWeSGttRJWYprKo1EWcYCDKDGmvptftBC2Xt8EvK2bQ==}
+    dependencies:
+      '@motionone/animation': 10.7.0
+      '@motionone/generators': 10.7.0
+      '@motionone/types': 10.7.0
+      '@motionone/utils': 10.7.0
+      hey-listen: 1.0.8
+      tslib: 2.3.1
+    dev: true
+
+  /@motionone/easing/10.7.0:
+    resolution: {integrity: sha512-FqGcVUel8NnYuXygnJ2KfiIfiySmpXhbTH/0icbRwjqPVVBd5k8+PCCrxJtFYD3LFKBUk2tT3fd01Y/j78+OUw==}
+    dependencies:
+      '@motionone/utils': 10.7.0
+      tslib: 2.3.1
+    dev: true
+
+  /@motionone/generators/10.7.0:
+    resolution: {integrity: sha512-l+F5bcszVN3YzMYEKyNE2TKilCe7l4B0BgSyjAvHCs37rXeUoJFv0B+UHAE1NL6iHzQ9s8Z5MUAGqyW/D0ymHQ==}
+    dependencies:
+      '@motionone/types': 10.7.0
+      '@motionone/utils': 10.7.0
+      tslib: 2.3.1
+    dev: true
+
+  /@motionone/react/10.7.0:
+    resolution: {integrity: sha512-9R/eqJQxtXZa92PsG/KOGLerJ+LDXCYRH4CigF23G8J5utMXaFthAP1XBnrRClMvA1rupGlnUhTCVFcEvuqntw==}
+    peerDependencies:
+      react: ^17.0.2
+      react-dom: ^17.0.2
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      '@motionone/dom': 10.7.0
+      hey-listen: 1.0.8
+      tslib: 2.3.1
+    dev: true
+
+  /@motionone/svelte/10.7.0:
+    resolution: {integrity: sha512-P8CD03GF0Ce8Xo/MjsmoIoiFHOi7NTUfDYb16s3tIYgzEgT0yxrRdaBh/e5tElMgIZsG5BlSfxCvxo4z3tNJMA==}
+    dependencies:
+      '@motionone/dom': 10.7.0
+      tslib: 2.3.1
+    dev: true
+
+  /@motionone/types/10.7.0:
+    resolution: {integrity: sha512-Sb29czMqFj0GckrbfWlrp9/DjaO+mOdORFGqQ7jNCV4pqx/jKHZsRTX7cZrjLPAQJrfEQu02dMcMHZOhsCiBBA==}
+    dev: true
+
+  /@motionone/utils/10.7.0:
+    resolution: {integrity: sha512-p8hAaIYE1JmaeduHhunjLUPFFWk+7MskCLcFTuJGTLVKWkWC6lLjswVV/Himkg2IHOqnbSRgqHb8y3jpIoPuMQ==}
+    dependencies:
+      '@motionone/types': 10.7.0
+      hey-listen: 1.0.8
+      tslib: 2.3.1
+    dev: true
+
+  /@motionone/vue/10.7.0:
+    resolution: {integrity: sha512-28Ip/hR8GLBieNiZ4IcmSrBHEPY6UiSp4+iidpOlG5GTLLWXxl7Pzqhbe6i9BTNpEY9yc2AdplQ6LEe/yxaPqQ==}
+    dependencies:
+      '@motionone/dom': 10.7.0
+      tslib: 2.3.1
     dev: true
 
   /@nodelib/fs.scandir/2.1.5:
@@ -1795,6 +1874,10 @@ packages:
       function-bind: 1.1.1
     dev: true
 
+  /hey-listen/1.0.8:
+    resolution: {integrity: sha512-COpmrF2NOg4TBWUJ5UVyaCU2A88wEMkUPK4hNqyCkqHbxT92BbvfjoSozkAIIm6XhicGlJHhFdullInrdhwU8Q==}
+    dev: true
+
   /hook-std/2.0.0:
     resolution: {integrity: sha512-zZ6T5WcuBMIUVh49iPQS9t977t7C0l7OtHrpeMb5uk48JdflRX0NSFvCekfYNmGQETnLq9W/isMyHl69kxGi8g==}
     engines: {node: '>=8'}
@@ -2338,6 +2421,19 @@ packages:
   /modify-values/1.0.1:
     resolution: {integrity: sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==}
     engines: {node: '>=0.10.0'}
+    dev: true
+
+  /motion/10.7.0:
+    resolution: {integrity: sha512-O6eMDzspPnTcU3IfmwZl8uY5t6DndbJEEnWBw+OqZSCLeSaDs4+gB0JnvqFkyrGl8vpE9H3UrRD5RDy1Z3TZmw==}
+    dependencies:
+      '@motionone/animation': 10.7.0
+      '@motionone/dom': 10.7.0
+      '@motionone/react': 10.7.0
+      '@motionone/svelte': 10.7.0
+      '@motionone/vue': 10.7.0
+    transitivePeerDependencies:
+      - react
+      - react-dom
     dev: true
 
   /mri/1.2.0:
@@ -3278,6 +3374,10 @@ packages:
       make-error: 1.3.6
       typescript: 4.5.4
       yn: 3.1.1
+    dev: true
+
+  /tslib/2.3.1:
+    resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
     dev: true
 
   /type-check/0.3.2:

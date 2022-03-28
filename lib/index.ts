@@ -1,22 +1,28 @@
 import { smitter } from 'smitter'
 import { qs, on } from 'martha'
 
+export type AlioTriggerElement = Element | 'popstate' | 'load'
+
 export interface AlioEnterOptions {
   to: Element
   from?: Element
   href?: string
   leaveCancelled?: boolean
+  trigger: AlioTriggerElement
 }
 
 export interface AlioLeaveOptions {
   from: Element
   href: string
+  trigger: AlioTriggerElement
 }
 
 export type AlioEnter = ({
-  from,
   to,
+  from,
   href,
+  leaveCancelled,
+  trigger,
 }: AlioEnterOptions) => PromiseLike<any>
 
 export type AlioLeave = ({ from, href }: AlioLeaveOptions) => PromiseLike<any>
@@ -65,6 +71,7 @@ export function create({ transitions }: AlioOptions): AlioApi {
   }
 
   let to: Element | null = null
+  let trigger: AlioTriggerElement = 'load'
 
   let abortController = new AbortController()
   let parser = new DOMParser()
@@ -99,6 +106,7 @@ export function create({ transitions }: AlioOptions): AlioApi {
         let transition = el.getAttribute('a-transition') ?? 'default'
 
         if (url.pathname !== window.location.pathname) {
+          trigger = el
           go(url.href, false, transition)
         } else {
           emitter.emit('samePage')
@@ -110,10 +118,27 @@ export function create({ transitions }: AlioOptions): AlioApi {
   })
 
   on(window, 'popstate', () => {
+    trigger = 'popstate'
     go(window.location.href, true)
   })
 
-  transitions.default.enter({ to: from })
+  requestAnimationFrame(() => {
+    emitter.emit('beforeEnter', {
+      href: window.location.href,
+      to: from,
+      doc: document,
+      trigger,
+    })
+
+    transitions.default.enter({ to: from as Element, trigger }).then(() => {
+      emitter.emit('afterEnter', {
+        href: window.location.href,
+        to: from,
+        doc: document,
+        trigger,
+      })
+    })
+  })
 
   return {
     on: emitter.on,
@@ -145,7 +170,7 @@ export function create({ transitions }: AlioOptions): AlioApi {
     if (status === LEAVING) {
       leaveCancelled = true
       abortController.abort()
-      emitter.emit('leaveCancelled', { href, from })
+      emitter.emit('leaveCancelled', { href, from, trigger })
       if (lastHref === href) {
         interruptLeaveWithEnter(href, popping, transition)
         return
@@ -154,18 +179,18 @@ export function create({ transitions }: AlioOptions): AlioApi {
 
     if (status === ENTERING) {
       enterCancelled = true
-      emitter.emit('enterCancelled', { href, from, to })
+      emitter.emit('enterCancelled', { href, from, to, trigger })
     }
 
     status = LEAVING
 
-    emitter.emit('beforeLeave', { href, from })
+    emitter.emit('beforeLeave', { href, from, trigger })
 
     if (!popping) {
       window.history.pushState(null, '', href)
     }
 
-    html = (await Promise.all([get(href), leave({ from, href })]))[0]
+    html = (await Promise.all([get(href), leave({ from, href, trigger })]))[0]
 
     if (leaveCancelled) {
       leaveCancelled = false
@@ -174,7 +199,7 @@ export function create({ transitions }: AlioOptions): AlioApi {
 
     if (!html) return
 
-    emitter.emit('afterLeave', { href, from })
+    emitter.emit('afterLeave', { href, from, trigger })
 
     status = ENTERING
     let doc = parser.parseFromString(html, 'text/html')
@@ -198,16 +223,16 @@ export function create({ transitions }: AlioOptions): AlioApi {
     // @ts-ignore
     root.append(to)
 
-    emitter.emit('beforeEnter', { href, from, to, doc })
+    emitter.emit('beforeEnter', { href, from, to, doc, trigger })
 
-    await enter({ from, to })
+    await enter({ from, to, trigger })
 
     if (enterCancelled) {
       enterCancelled = false
       return
     }
 
-    emitter.emit('afterEnter', { href, from, to, doc })
+    emitter.emit('afterEnter', { href, from, to, doc, trigger })
 
     status = IDLE
     lastHref = href
@@ -236,14 +261,14 @@ export function create({ transitions }: AlioOptions): AlioApi {
     }
 
     emitter.emit('beforeEnter', { href, to })
-    await transitions[transition].enter({ to, leaveCancelled: true })
+    await transitions[transition].enter({ to, leaveCancelled: true, trigger })
 
     if (enterCancelled) {
       enterCancelled = false
       return
     }
 
-    emitter.emit('afterEnter', { href, to })
+    emitter.emit('afterEnter', { href, to, trigger })
 
     status = IDLE
   }

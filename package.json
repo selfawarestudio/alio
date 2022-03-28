@@ -1,6 +1,6 @@
 {
   "name": "alio",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "A lightweight pjax library",
   "files": [
     "dist"
@@ -54,6 +54,7 @@
     "husky": "^7.0.4",
     "is-ci": "^3.0.1",
     "jsdom": "^19.0.0",
+    "motion": "^10.7.0",
     "prettier": "^2.5.1",
     "semantic-release": "^18.0.1",
     "sinon": "^12.0.1",
