@@ -1,27 +1,25 @@
 import { smitter } from 'smitter'
 import { qs, on } from 'martha'
 
-export type AlioTriggerElement = Element | 'popstate' | 'load'
+export type AlioTrigger = Element | 'popstate' | 'load'
 
 export interface AlioEnterOptions {
   to: Element
   from?: Element
   href?: string
-  leaveCancelled?: boolean
-  trigger: AlioTriggerElement
+  trigger: AlioTrigger
 }
 
 export interface AlioLeaveOptions {
   from: Element
   href: string
-  trigger: AlioTriggerElement
+  trigger: AlioTrigger
 }
 
 export type AlioEnter = ({
   to,
   from,
   href,
-  leaveCancelled,
   trigger,
 }: AlioEnterOptions) => PromiseLike<any>
 
@@ -41,19 +39,41 @@ export interface AlioOptions {
 
 export type AlioCache = Record<string, string>
 
+export interface AlioEventMap {
+  beforeEnter: {
+    href: string
+    from?: Element
+    to: Element
+    doc?: Document
+    trigger?: AlioTrigger
+  }
+  afterEnter: {
+    href: string
+    from?: Element
+    to: Element
+    doc?: Document
+    trigger: AlioTrigger
+  }
+  beforeLeave: {
+    href: String
+    from: Element
+    trigger: AlioTrigger
+  }
+  afterLeave: {
+    href: String
+    from: Element
+    trigger: AlioTrigger
+  }
+  samePage: undefined
+}
+
 export interface AlioApi {
   on: (type: string, handler: (payload: any) => void) => any
   go: (href: string) => Promise<void>
 }
 
 export function create({ transitions }: AlioOptions): AlioApi {
-  let IDLE = 'idle'
-  let LEAVING = 'leaving'
-  let ENTERING = 'entering'
-
-  let emitter = smitter()
-  let lastHref: string | null = null
-
+  let emitter = smitter<AlioEventMap>()
   let cache: AlioCache = {
     [window.location.pathname]: document.documentElement.outerHTML,
   }
@@ -71,14 +91,9 @@ export function create({ transitions }: AlioOptions): AlioApi {
   }
 
   let to: Element | null = null
-  let trigger: AlioTriggerElement = 'load'
-
-  let abortController = new AbortController()
+  let trigger: AlioTrigger = 'load'
   let parser = new DOMParser()
-
-  let status = IDLE
-  let leaveCancelled = false
-  let enterCancelled = false
+  let isTransitioning = false
 
   on(document, 'click', event => {
     let ev = event as MouseEvent
@@ -95,13 +110,26 @@ export function create({ transitions }: AlioOptions): AlioApi {
     }
 
     let el = target?.closest(
-      'a[href]:not([target]):not([href|="#"]):not([a-ignore])',
+      'a[href]:not([target]):not([href*="#"]):not([a-ignore])',
     )
 
     if (el) {
       let href = el.getAttribute('href')
 
       if (href?.length) {
+        if (
+          href.toLowerCase().startsWith('http') &&
+          new URL(href).hostname.replace('www.', '') !==
+            window.location.hostname
+        ) {
+          return
+        }
+
+        if (isTransitioning) {
+          ev.preventDefault()
+          return
+        }
+
         let url = new URL(href, window.location.origin)
         let transition = el.getAttribute('a-transition') ?? 'default'
 
@@ -117,7 +145,12 @@ export function create({ transitions }: AlioOptions): AlioApi {
     }
   })
 
-  on(window, 'popstate', () => {
+  on(window, 'popstate', ev => {
+    if (isTransitioning) {
+      ev.preventDefault()
+      return
+    }
+
     trigger = 'popstate'
     go(window.location.href, true)
   })
@@ -125,7 +158,7 @@ export function create({ transitions }: AlioOptions): AlioApi {
   requestAnimationFrame(() => {
     emitter.emit('beforeEnter', {
       href: window.location.href,
-      to: from,
+      to: from as Element,
       doc: document,
       trigger,
     })
@@ -133,7 +166,7 @@ export function create({ transitions }: AlioOptions): AlioApi {
     transitions.default.enter({ to: from as Element, trigger }).then(() => {
       emitter.emit('afterEnter', {
         href: window.location.href,
-        to: from,
+        to: from as Element,
         doc: document,
         trigger,
       })
@@ -141,7 +174,7 @@ export function create({ transitions }: AlioOptions): AlioApi {
   })
 
   return {
-    on: emitter.on,
+    on: emitter.on as any,
     go: href => go(href),
   }
 
@@ -152,37 +185,15 @@ export function create({ transitions }: AlioOptions): AlioApi {
   ) {
     let { leave, enter } = transitions[transition]
 
-    if (typeof leave !== 'function') {
-      throw new Error(`leave missing from: ${transition}`)
-    }
-
-    if (typeof enter !== 'function') {
-      throw new Error(`enter missing from: ${transition}`)
-    }
-
     let html = null
-    from = qs('[a-page]', root as ParentNode)
+
+    from = qs('[a-page]', root as Element)
 
     if (!from) {
       throw new Error('[a-page] element missing')
     }
 
-    if (status === LEAVING) {
-      leaveCancelled = true
-      abortController.abort()
-      emitter.emit('leaveCancelled', { href, from, trigger })
-      if (lastHref === href) {
-        interruptLeaveWithEnter(href, popping, transition)
-        return
-      }
-    }
-
-    if (status === ENTERING) {
-      enterCancelled = true
-      emitter.emit('enterCancelled', { href, from, to, trigger })
-    }
-
-    status = LEAVING
+    isTransitioning = true
 
     emitter.emit('beforeLeave', { href, from, trigger })
 
@@ -192,16 +203,10 @@ export function create({ transitions }: AlioOptions): AlioApi {
 
     html = (await Promise.all([get(href), leave({ from, href, trigger })]))[0]
 
-    if (leaveCancelled) {
-      leaveCancelled = false
-      return
-    }
-
     if (!html) return
 
     emitter.emit('afterLeave', { href, from, trigger })
 
-    status = ENTERING
     let doc = parser.parseFromString(html, 'text/html')
     let tmpRoot = qs('[a-root]', doc)
 
@@ -209,7 +214,7 @@ export function create({ transitions }: AlioOptions): AlioApi {
       throw new Error('[a-root] element missing from incoming html')
     }
 
-    to = qs('[a-page]', tmpRoot as ParentNode)
+    to = qs('[a-page]', tmpRoot as Element)
 
     if (!to) {
       throw new Error('[a-page] element missing from incoming html')
@@ -227,68 +232,19 @@ export function create({ transitions }: AlioOptions): AlioApi {
 
     await enter({ from, to, trigger })
 
-    if (enterCancelled) {
-      enterCancelled = false
-      return
-    }
-
     emitter.emit('afterEnter', { href, from, to, doc, trigger })
 
-    status = IDLE
-    lastHref = href
-  }
-
-  async function interruptLeaveWithEnter(
-    href: string,
-    popping: boolean,
-    transition: string,
-  ) {
-    if (status === ENTERING) {
-      enterCancelled = true
-      emitter.emit('enterCancelled')
-    }
-
-    status = ENTERING
-
-    let to = qs('[a-page]', root as ParentNode)
-
-    if (!to) {
-      throw new Error('[a-page] element missing')
-    }
-
-    if (!popping) {
-      window.history.pushState(null, '', href)
-    }
-
-    emitter.emit('beforeEnter', { href, to })
-    await transitions[transition].enter({ to, leaveCancelled: true, trigger })
-
-    if (enterCancelled) {
-      enterCancelled = false
-      return
-    }
-
-    emitter.emit('afterEnter', { href, to, trigger })
-
-    status = IDLE
+    isTransitioning = false
   }
 
   async function get(href: string) {
-    abortController = new AbortController()
-
     let html = cache[href]
 
     if (html) return html
 
-    try {
-      html = await fetch(href, {
-        credentials: 'include',
-        signal: abortController.signal,
-      }).then(res => res.text())
-    } catch (error) {
-      // @ts-ignore
-      if (error?.name === 'AbortError') return
-    }
+    html = await fetch(href, {
+      credentials: 'include',
+    }).then(res => res.text())
 
     cache[href] = html
 

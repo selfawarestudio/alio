@@ -65,6 +65,6 @@
   },
   "dependencies": {
     "martha": "^4.0.3",
-    "smitter": "^1.0.2"
+    "smitter": "1.1.1"
   }
 }
